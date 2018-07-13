@@ -1,9 +1,54 @@
-var wins = 0;
-var word = 'something';
+var winCount = 0;
+var guessLibrary = ['target1', 'target2']; //hardcoded library
+var targetIndex = 0; //maybe change to initialize as random 0 .. guessLibrary.length-1;
+const guessLimit = 12;
+var lettersGuessed = 0;
+var guessTarget = [];
+
+for (i = 0; i < guessLibrary[targetIndex].length - 1; i++) {
+    guessTarget[i] = '-'; //Initialize guessTarget
+}
+
+//while forever listening for events.... do stuff on press
+
+//learn how this event actually works!
 var x = event.which || event.keyCode;   // Get the Unicode value
 var y = String.fromCharCode(x);         // Convert the value into a character
 
+//Game loop's already live on page load in example
+//Select a word randomly from a dictionary? Specify length or other properties?
+//math.rand and check for no repeats when selecting new word?
+//Example appeared to prune to bands or certain topics in a hardcoded library
 
+//initialize variables:
+//  need winCount, guessLibrary, targetIndex?, const guessLimit, lettersGuessed
+//      
+//  actually could just generate display string based on hardcoded library index
+//Decide some kind of guess limit like hangman, deducted by miss count?
+//based on word make a guessArray of string, make new string of - to length
+
+//Need to display guessLimit, displayArray, etc to game board
+//Basic Board Example:
+/*
+    Press Any Key to Get Started!
+
+    Wins: 0
+
+    Word:   - - - - - - -
+
+    Number of Guesses Remaining: 20
+
+    Letters Already Guessed: 0 [ - - - - - - - etc]
+*/
+
+//check for equality after each guess loop, that's win condition?
+//increment guess count each keypress
+
+//if guess match item in guessArray copy same index to displayArray
+//Else copy guess value to guessed letter string increment missCount
+
+//on loss reloop to a new game round, no title?
+//Need to reinitialize values other than win count etc?
 
 //use key events
 
