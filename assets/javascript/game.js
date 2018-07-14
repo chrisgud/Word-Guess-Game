@@ -1,19 +1,47 @@
-var winCount = 0;
-var guessLibrary = ['target1', 'target2']; //hardcoded library
-var targetIndex = 0; //maybe change to initialize as random 0 .. guessLibrary.length-1;
-const guessLimit = 12;
-var lettersGuessed = 0;
-var guessTarget = [];
-
-for (i = 0; i < guessLibrary[targetIndex].length - 1; i++) {
-    guessTarget[i] = '-'; //Initialize guessTarget
+String.prototype.replaceAt = function (index, replacement) {
+    return this.substr(0, index) + replacement + this.substr(index + replacement.length);
 }
 
+var winCount = 0;
+var wordLibrary = ['target1', 'target2', 'target 3', 'target 4']; //hardcoded library
+var targetIndex = 0; //maybe initialize as random 0 to wordLibrary.length-1;
+const guessLimit = 12;
+var lettersGuessed = 0;
+var wordDisplay = '';
+
+var wordTarget = wordLibrary[targetIndex]; //Set initial target
+
+for (i = 0; i < wordTarget.length; i++) {
+    wordDisplay += '-'; //Initialize guessTarget
+}
+
+// Funtionally the game loop
+document.onkeyup = function (event) {
+    var userGuess = (event.key).toLowerCase();
+    if (verifyGuess(userGuess)) {
+        for (i = 0; i < wordTarget.length; i++)
+            if (userGuess === wordTarget.charAt(i)) {
+
+                wordDisplay = wordDisplay.replaceAt(i, userGuess);
+                console.log(wordDisplay[i]);
+            }
+    }
+
+
+    document.getElementById('gameZone').innerHTML = ('wordDisplay = ' + wordDisplay +
+        '<br>wordTarget = ' + wordTarget);
+}
+//checks if inputGuess is a valid character
+function verifyGuess(inputGuess) {
+    if (inputGuess >= 'a' && inputGuess <= 'z') {
+        return 1;
+    } else return 0;
+}
 //while forever listening for events.... do stuff on press
 
 //learn how this event actually works!
-var x = event.which || event.keyCode;   // Get the Unicode value
-var y = String.fromCharCode(x);         // Convert the value into a character
+// var x = event.which || event.keyCode;   // Get the Unicode value
+// var y = String.fromCharCode(x);         // Convert the value into a character
 
 //Game loop's already live on page load in example
 //Select a word randomly from a dictionary? Specify length or other properties?
