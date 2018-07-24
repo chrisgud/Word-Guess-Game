@@ -127,18 +127,15 @@ var wordGuess = {
 
     //methods gathered to run the game
     runGame: function (userGuess) {
-        if (wordGuess.wordTarget == '') {
-            wordGuess.init();
-            wordGuess.updateDisplay();
-        } //First run init to pick word and display
-
         wordGuess.checkGuess(userGuess);
         wordGuess.verifyWin();
         wordGuess.updateDisplay();
-
     }
 }
 
+//First run init to pick word and display
+wordGuess.init();
+wordGuess.updateDisplay();
 //keypres loop for input
 document.onkeyup = function (event) {
     var userGuess = (event.key).toLowerCase();
