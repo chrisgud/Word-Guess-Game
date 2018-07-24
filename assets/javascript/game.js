@@ -1,62 +1,154 @@
+//Generic replace at index method for strings
 String.prototype.replaceAt = function (index, replacement) {
     return this.substr(0, index) + replacement + this.substr(index + replacement.length);
 }
 
-var winCount = 0;
-var wordLibrary = ['target1', 'target2', 'target 3', 'target 4']; //hardcoded library
-var targetIndex = 0; //maybe initialize as random 0 to wordLibrary.length-1;
-const guessLimit = 12;
-var lettersGuessed = 0;
-var wordDisplay = '';
+//wordGuess game object
+var wordGuess = {
 
-var wordTarget = wordLibrary[targetIndex]; //Set initial target
+    winCount: 0,
+    lossCount: 0,
+    wordLibrary: [
+        'mariah carey', 'janet jackson', 'boyz ii men',
+        'celine dion', 'whitney houston', 'madonna', 'tlc'
+    ],
+    guessLimit: 12,
+    guessCount: 0,
+    wordDisplay: '',
+    wordTarget: '',
+    usedLetters: [],
+    matchedLetter: false,
 
-for (i = 0; i < wordTarget.length; i++) {
-    wordDisplay += '-'; //Initialize guessTarget
+    //initalize consumed variables for game
+    init: function () {
+        wordGuess.guessCount = 0;
+        wordGuess.wordTarget = '';
+        do {  //avoid getting the same word twice in a row
+            wordGuess.wordTarget = wordGuess.wordLibrary[
+                Math.floor(Math.random() * wordGuess.wordLibrary.length)
+            ];
+        } while (wordGuess.wordTarget === wordGuess.wordDisplay);
+        wordGuess.wordDisplay = '';
+        wordGuess.usedLetters = [];
+
+        for (i = 0; i < wordGuess.wordTarget.length; i++) {
+            if (wordGuess.wordTarget.charAt(i) == ' ') {
+                wordGuess.wordDisplay += ' ';
+            } else {
+                wordGuess.wordDisplay += '_';
+            }
+        }
+    },
+
+    //bounds input response to a to z, length restraint prevents tab/fkeys
+    verifyGuess: function (inputGuess) {
+        if (inputGuess >= 'a' && inputGuess <= 'z' && inputGuess.length == 1) {
+            return 1;
+        } else {
+            return 0;
+        }
+    },
+
+    //checks for win and loss conditions, resets game
+    verifyWin: function () {
+
+        if (wordGuess.guessCount >= wordGuess.guessLimit) {
+            wordGuess.lossCount++;
+            $('#infoZone').html('You lose!<br>Win Count : '
+                + wordGuess.winCount + '<br>Loss Count: '
+                + wordGuess.lossCount);
+            wordGuess.init();
+        } else if (wordGuess.wordTarget === wordGuess.wordDisplay) {
+            {
+                wordGuess.winCount++;
+                $('#infoZone').html('You win!<br>Win Count : '
+                    + wordGuess.winCount + '<br>Loss Count: '
+                    + wordGuess.lossCount);
+                wordGuess.init();
+            }
+        }
+    },
+
+    //checks if userGuess matches 
+    checkGuess: function (userGuess) {
+        if (wordGuess.verifyGuess(userGuess)) {
+            wordGuess.matchedLetter = false; //reset match state
+            for (i = 0; i < wordGuess.wordTarget.length; i++) {
+                if (userGuess === wordGuess.wordTarget.charAt(i)) {
+                    wordGuess.wordDisplay = wordGuess.wordDisplay.replaceAt(i, userGuess);
+                    wordGuess.matchedLetter = true;
+                }
+            }
+            //avoided if guess letter matched target or is already in usedLetters
+            if (!wordGuess.matchedLetter && !wordGuess.usedLetters.includes(userGuess)) {
+                wordGuess.guessCount++;
+                wordGuess.usedLetters += userGuess;
+            }
+        }
+    },
+
+    //sends display information to game div
+    updateDisplay: function () {
+        $('#gameZone').html('Guess the word: ' + wordGuess.displayWordDisplay()
+            //+ '<br>Current Target: ' + wordGuess.wordTarget
+        );
+        $('#letterZone').html('Guesses Remaining: ' +
+            (parseInt(wordGuess.guessLimit) - parseInt(wordGuess.guessCount))
+            + '<br>Letters used: ' + wordGuess.displayLetters())
+    },
+
+    //formatting to display lettersUsed
+    displayLetters: function () {
+        var returnString = '[ ';
+        for (i = 0; i < wordGuess.usedLetters.length; i++) {
+            if (i == 0) {
+                returnString += wordGuess.usedLetters.charAt(i).toUpperCase();
+            } else {
+                returnString += (', ' + wordGuess.usedLetters.charAt(i).toUpperCase());
+            }
+        }
+        returnString += ' ]';
+        return returnString;
+    },
+
+    //formatting to display wordDisplay
+    displayWordDisplay: function () {
+        var returnString = '[ ';
+        for (i = 0; i < wordGuess.wordDisplay.length; i++) {
+            if (wordGuess.wordTarget.charAt(i) == ' ') {
+                returnString += '&emsp;';
+            } else {
+                returnString += (wordGuess.wordDisplay.charAt(i).toUpperCase() + ' ');
+            }
+        }
+        returnString += ' ]';
+        return returnString;
+    },
+
+    //methods gathered to run the game
+    runGame: function (userGuess) {
+        if (wordGuess.wordTarget == '') {
+            wordGuess.init();
+            wordGuess.updateDisplay();
+        } //First run init to pick word and display
+
+        wordGuess.checkGuess(userGuess);
+        wordGuess.verifyWin();
+        wordGuess.updateDisplay();
+
+    }
 }
 
-// Funtionally the game loop
+//keypres loop for input
 document.onkeyup = function (event) {
     var userGuess = (event.key).toLowerCase();
-    if (verifyGuess(userGuess)) {
-        for (i = 0; i < wordTarget.length; i++)
-            if (userGuess === wordTarget.charAt(i)) {
 
-                wordDisplay = wordDisplay.replaceAt(i, userGuess);
-                console.log(wordDisplay[i]);
-            }
-    }
-
-
-    document.getElementById('gameZone').innerHTML = ('wordDisplay = ' + wordDisplay +
-        '<br>wordTarget = ' + wordTarget);
+    wordGuess.runGame(userGuess);
 }
-//checks if inputGuess is a valid character
-function verifyGuess(inputGuess) {
-    if (inputGuess >= 'a' && inputGuess <= 'z') {
-        return 1;
-    } else return 0;
-}
-//while forever listening for events.... do stuff on press
 
-//learn how this event actually works!
-// var x = event.which || event.keyCode;   // Get the Unicode value
-// var y = String.fromCharCode(x);         // Convert the value into a character
-
-//Game loop's already live on page load in example
 //Select a word randomly from a dictionary? Specify length or other properties?
-//math.rand and check for no repeats when selecting new word?
 //Example appeared to prune to bands or certain topics in a hardcoded library
 
-//initialize variables:
-//  need winCount, guessLibrary, targetIndex?, const guessLimit, lettersGuessed
-//      
-//  actually could just generate display string based on hardcoded library index
-//Decide some kind of guess limit like hangman, deducted by miss count?
-//based on word make a guessArray of string, make new string of - to length
-
-//Need to display guessLimit, displayArray, etc to game board
-//Basic Board Example:
 /*
     Press Any Key to Get Started!
 
@@ -69,24 +161,13 @@ function verifyGuess(inputGuess) {
     Letters Already Guessed: 0 [ - - - - - - - etc]
 */
 
-//check for equality after each guess loop, that's win condition?
-//increment guess count each keypress
 
-//if guess match item in guessArray copy same index to displayArray
-//Else copy guess value to guessed letter string increment missCount
-
-//on loss reloop to a new game round, no title?
-//Need to reinitialize values other than win count etc?
-
-//use key events
 
 /*
 ## Option Two: Word Guess Game (Challenge - Recommended)
 
 1. [Watch the demo](hangman-game-demo.mov).
-
 2. Choose a theme for your game! In the demo, we picked an 80s theme: 80s questions, 80s sound and an 80s aesthetic. You can choose any subject for your theme, though, so be creative!
-
 3. Use key events to listen for the letters that your players will type.
 
 4. Display the following on the page:
@@ -100,9 +181,7 @@ function verifyGuess(inputGuess) {
    * As the user guesses the correct letters, reveal them: `m a d o _  _ a`.
 
 7. Number of Guesses Remaining: (# of guesses remaining for the user).
-
 8. Letters Already Guessed: (Letters the user has guessed, displayed like `L Z Y H`).
-
 9. After the user wins/loses the game should automatically choose another word and make the user play it.
 
 ##### Word Guess Game Bonuses
